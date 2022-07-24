@@ -28,11 +28,11 @@ def main():
     """
 
     # Paste the Spotify playlist link.
-    playlist_id = "https://open.spotify.com/playlist/0G5qU6zKlFRgLe8Y0Vr1Em"
+    playlist_id = <insert_playlist_link_here>
 
     # Paste the client ID and client secret from https://developer.spotify.com/
-    client_id = "d10bfbf0560b4ca3abff165985ef0e12"
-    client_secret = "070b6159ab674c30a9c9499f7034828c"
+    client_id = <inser_client_id_here>
+    client_secret = <insert_client_secret_here>
 
     # Paste the path to the folder containing the sheet music.
     repertoire = "/Users/kevyandrews/My Drive/Repertoire"
