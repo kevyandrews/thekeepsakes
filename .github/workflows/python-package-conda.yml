@@ -14,7 +14,11 @@ jobs:
         python-version: '3.10'
     - name: install requirments
       run: pip install -r requirements.txt
+    - name: install gdown
+      run: pip install gdown
+    - name: download repertoire
+      run: gdown https://drive.google.com/drive/folders/1OKb-SSEmjudZaXC6sKeWjkh0wmyAUyz-
     - name: Run python program
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
-        python SetlistGenerator.py -c ${{ secrets.SPOTIFYCLIENTID }} -s ${{ secrets.SPOTIFYSECRET }} -p https://open.spotify.com/playlist/5uBncQl6gmVXVDS057nUHZ?si=5320e8a974d64426 
+        python SetlistGenerator.py -c ${{ secrets.SPOTIFYCLIENTID }} -s ${{ secrets.SPOTIFYSECRET }} -p https://open.spotify.com/playlist/5uBncQl6gmVXVDS057nUHZ?si=5320e8a974d64426 -r Repertoire/ -o Out
