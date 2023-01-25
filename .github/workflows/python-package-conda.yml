@@ -17,4 +17,4 @@ jobs:
     - name: Run python program
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
-        python SetlistGenerator.py -c ${{ secrets.SPOTIFYCLIENTID }} -S ${{ secrets.SPOTIFYSECRET }} -p https://open.spotify.com/playlist/5uBncQl6gmVXVDS057nUHZ?si=5320e8a974d64426 
+        python SetlistGenerator.py -c ${{ secrets.SPOTIFYCLIENTID }} -s ${{ secrets.SPOTIFYSECRET }} -p https://open.spotify.com/playlist/5uBncQl6gmVXVDS057nUHZ?si=5320e8a974d64426 
