@@ -13,7 +13,7 @@ jobs:
       with:
         python-version: '3.10'
     - name: install requirments
-      run: pip install requirements.txt
+      run: pip install -r requirements.txt
     - name: Run python program
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
