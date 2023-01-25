@@ -5,6 +5,7 @@ import os
 import re
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import argparse
 
 
 def main():
@@ -27,18 +28,30 @@ def main():
     define the pathname to this repertoire folder.
 
     """
+
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument("-p", "--playlistUrl", help="spotify playlist url")
+    argParser.add_argument("-c", "--clientId", help="spotify api client id")
+    argParser.add_argument("-s", "--clientSecret", help="spotify api client secret")
+    argParser.add_argument("-r", "--repertoire", help="path to repertoire")
+    argParser.add_argument("-o", "--outputPath", help="path to output files")
+
+
+    args = argParser.parse_args()
+    print("args=%s" % args)
+
     # Paste the Spotify playlist link.
-    playlist_id = ""
+    playlist_id = args.playlistUrl
 
     # Paste the client ID and client secret from https://developer.spotify.com/
-    client_id = ""
-    client_secret = ""
+    client_id = args.clientId
+    client_secret = args.clientSecret
 
     # Paste the path to the folder containing the sheet music.
-    repertoire = ""
+    repertoire = args.repertoire
 
     # Paste the path to the folder where the PDFs should be saved in.
-    save_location = ""
+    save_location = args.outputPath
 
     # Define which instruments to create parts for.
     instruments = ["Drums", "Bass", "Tenor", "Alto", "Trombone", "Keys"]
