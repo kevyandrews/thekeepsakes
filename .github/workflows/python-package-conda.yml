@@ -19,7 +19,7 @@ jobs:
       with:
         service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
     - name: Download from google drive
-      run: gdrive download 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu --service-account client_secrets.json --recursive
+      run: gdrive download 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu --service-account --recursive
     - name: Run python program
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
