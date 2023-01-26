@@ -14,10 +14,12 @@ jobs:
         python-version: '3.10'
     - name: install requirments
       run: pip install -r requirements.txt
-    - name: install gdown
-      run: pip install gdown
-    - name: download repertoire
-      run: gdown --folder 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu
+    - name: Setup gdrive
+      uses: AnimMouse/setup-gdrive@v3
+      with:
+        service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+    - name: Download from google drive
+      run: gdrive download 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu --service-account client_secrets.json --recursive
     - name: Run python program
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
