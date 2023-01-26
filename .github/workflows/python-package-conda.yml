@@ -19,8 +19,13 @@ jobs:
       with:
         service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
     - name: Download from google drive
-      run: gdrive download 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu --recursive gdrive.json --service-account
+      run: gdrive download 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu --recursive --service-account gdrive.json
     - name: Run python program
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         python SetlistGenerator.py -c ${{ secrets.SPOTIFYCLIENTID }} -s ${{ secrets.SPOTIFYSECRET }} -p https://open.spotify.com/playlist/5uBncQl6gmVXVDS057nUHZ?si=5320e8a974d64426 -r Repertoire/ -o Out
+    - name: Archive pdfs
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: Out/*.pdf
