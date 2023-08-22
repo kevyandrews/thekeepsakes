@@ -28,6 +28,7 @@ PAGE_SIZE = (8.5 * inch, 11 * inch)
 COVER_PAGE_INCREMENT = 20
 COVER_PAGE_START_Y=710
 SET_BREAK_SONG_NAME = "--- SET BREAK ---"
+TOMS_BASS_STUFF_DIR = "Tom_s Bass Stuff"
 
 
 
@@ -82,7 +83,7 @@ def main():
     save_location = args.outputPath
 
     # Define which instruments to create parts for.
-    instruments = ["Drums", "Bass", "Tenor", "Alto", "Trombone", "Keys"]
+    instruments = ["Drums","CustomBass", "Bass", "Tenor", "Alto", "Trombone", "Keys", "Lyrics"]
 
     # Returns setlist as list.
     setlist = get_setlist_from_spotify(client_id, client_secret, playlist_id)
@@ -99,10 +100,11 @@ def main():
     for instrument in instruments:
         merged_file_name = os.path.join(TEMP_DIR, instrument +'_Merged.pdf')
         song_pdfs = get_pdf_files(setlist, repertoire, instrument)
-        cover_page = create_cover_page(song_pdfs, instrument, setlist_name) 
-        song_pdfs.insert(0, cover_page)
+        cover_pages = create_cover_pages(song_pdfs, instrument, setlist_name)
+        for cover_page in cover_pages:
+            song_pdfs.insert(0, cover_page)
         merge_pdfs(song_pdfs, merged_file_name)
-        output_path = os.path.join(save_location, instrument + '_Setlist.pdf')
+        output_path = os.path.join(save_location, instrument + f'_Setlist_{setlist_name}.pdf')
         add_links_to_cover_page(song_pdfs, merged_file_name, output_path)
 
 def merge_pdfs(song_pdfs: list[SongPDF], save_path):
@@ -121,13 +123,14 @@ def create_home_pdf():
     packet = io.BytesIO()
     can = Canvas(packet)
     can.setFont(FONT, 16)
-    can.drawString(475, 770, "Return To Top ^")
+    can.drawString(4, 4, "Return To Top ^")
     can.save()
     #move to the beginning of the StringIO buffer
     packet.seek(0)
     return packet
 
-def create_cover_page(song_pdfs: list[SongPDF], instrument, setlist_name):
+def create_cover_pages(song_pdfs: list[SongPDF], instrument, setlist_name):
+    ret_song_pdfs = []
     file_name = os.path.join(TEMP_DIR, "TempCoverPage.pdf")
     # Write text out to pdf file
     canvas = Canvas(file_name)
@@ -144,7 +147,8 @@ def create_cover_page(song_pdfs: list[SongPDF], instrument, setlist_name):
         canvas.drawString(50, i, song_pdf.song_name)
         i-=COVER_PAGE_INCREMENT
     canvas.save()
-    return SongPDF(song_name="", instrument=instrument, file_path=file_name)
+    ret_song_pdfs.append(SongPDF(song_name="", instrument=instrument, file_path=file_name))
+    return ret_song_pdfs
 
 def create_set_break_page():
     file_name = os.path.join(TEMP_DIR, "TempSetBreakPage.pdf")
@@ -177,7 +181,7 @@ def add_links_to_cover_page(song_pdfs: list[SongPDF],input_file_name, output_fil
         pdf_writer.addLink(
             pagenum=i, # index of the page on which to place the link
             pagedest=0, # index of the page to which the link should go
-            rect=RectangleObject([450,790,600,760]), # clickable area x1, y1, x2, y2 (starts bottom left corner)
+            rect=RectangleObject([2,2,200,30]), # clickable area x1, y1, x2, y2 (starts bottom left corner)
             border=[1, 1, 1]
         )
     i = COVER_PAGE_START_Y+(COVER_PAGE_INCREMENT*.75)
@@ -221,7 +225,17 @@ def get_pdf_files(setlist, repertoire, instrument):
         for dir in os.listdir(repertoire):
             if strip_characters(dir.lower()) in strip_characters(song_title.lower()):
                 song_dir = os.path.join(repertoire, dir)
-                file_to_add = get_instrument_file(song_dir, instrument)
+
+                if instrument == "CustomBass":
+                    # Prioritize Tom's bass stuff
+                    if file_to_add is None and (instrument == "CustomBass"):
+                        file_to_add = get_instrument_file(os.path.join(repertoire, TOMS_BASS_STUFF_DIR), strip_characters(song_title.lower()))
+                    if file_to_add is None:
+                        file_to_add = get_instrument_file(song_dir, "Bass")
+
+                # Main case
+                if file_to_add is None:
+                    file_to_add = get_instrument_file(song_dir, instrument)
                 
                 if file_to_add is None and (instrument == "Bass" or instrument == "Keys"):
                     file_to_add = get_instrument_file(song_dir, "chord")
@@ -233,6 +247,8 @@ def get_pdf_files(setlist, repertoire, instrument):
                     file_to_add = get_instrument_file(song_dir, "Bass")
                 if file_to_add is None and instrument == "Drums":
                     file_to_add = get_instrument_file(song_dir, "rhythm")
+
+
 
                 # Didn't find any files for given instrument - create place holder
                 if file_to_add is None:
