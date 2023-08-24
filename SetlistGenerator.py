@@ -26,7 +26,6 @@ TEMP_DIR ="temp_char_dir"
 FONT = "Vera"
 PAGE_SIZE = (8.5 * inch, 11 * inch)
 COVER_PAGE_INCREMENT = 20
-COVER_PAGE_START_Y=710
 SET_BREAK_SONG_NAME = "--- SET BREAK ---"
 TOMS_BASS_STUFF_DIR = "Tom_s Bass Stuff"
 
@@ -87,6 +86,10 @@ def main():
 
     # Returns setlist as list.
     setlist = get_setlist_from_spotify(client_id, client_secret, playlist_id)
+    if len(setlist) > 30:
+        cover_page_size = (PAGE_SIZE[0], 150 + (len(setlist)*COVER_PAGE_INCREMENT))
+    else:
+        cover_page_size = PAGE_SIZE
 
     setlist_name = get_playlist_name(client_id, client_secret, playlist_id)
 
@@ -100,12 +103,12 @@ def main():
     for instrument in instruments:
         merged_file_name = os.path.join(TEMP_DIR, instrument +'_Merged.pdf')
         song_pdfs = get_pdf_files(setlist, repertoire, instrument)
-        cover_pages = create_cover_pages(song_pdfs, instrument, setlist_name)
+        cover_pages = create_cover_pages(song_pdfs, instrument, setlist_name, cover_page_size)
         for cover_page in cover_pages:
             song_pdfs.insert(0, cover_page)
         merge_pdfs(song_pdfs, merged_file_name)
         output_path = os.path.join(save_location, instrument + f'_Setlist_{setlist_name}.pdf')
-        add_links_to_cover_page(song_pdfs, merged_file_name, output_path)
+        add_links_to_cover_page(song_pdfs, merged_file_name, output_path, cover_page_size)
 
 def merge_pdfs(song_pdfs: list[SongPDF], save_path):
     """Merge multiple PDF files into one PDF file."""
@@ -129,16 +132,16 @@ def create_home_pdf():
     packet.seek(0)
     return packet
 
-def create_cover_pages(song_pdfs: list[SongPDF], instrument, setlist_name):
+def create_cover_pages(song_pdfs: list[SongPDF], instrument, setlist_name, cover_page_size):
     ret_song_pdfs = []
     file_name = os.path.join(TEMP_DIR, "TempCoverPage.pdf")
     # Write text out to pdf file
     canvas = Canvas(file_name)
-    canvas.setPageSize(PAGE_SIZE)
+    canvas.setPageSize(cover_page_size)
     canvas.setFont(FONT, 24)
-    canvas.drawString(50, 750, f"{setlist_name} Setlist - {instrument}")
+    canvas.drawString(50, cover_page_size[1]-50, f"{setlist_name} Setlist - {instrument}")
     canvas.setFont(FONT, 14)
-    i = COVER_PAGE_START_Y
+    i = cover_page_size[1]-100
     for song_pdf in song_pdfs:
         if song_pdf.song_name == SET_BREAK_SONG_NAME:
             canvas.setFillColorRGB(1,0,0)
@@ -162,7 +165,7 @@ def create_set_break_page():
     return SongPDF(song_name=SET_BREAK_SONG_NAME, instrument="", file_path=file_name)
 
 
-def add_links_to_cover_page(song_pdfs: list[SongPDF],input_file_name, output_file_name):
+def add_links_to_cover_page(song_pdfs: list[SongPDF],input_file_name, output_file_name, cover_page_size):
     # Add clickable links over newly created pdf file
     text_packet = create_home_pdf()
     home_page_reader = PdfFileReader(text_packet)
@@ -184,7 +187,7 @@ def add_links_to_cover_page(song_pdfs: list[SongPDF],input_file_name, output_fil
             rect=RectangleObject([2,2,200,30]), # clickable area x1, y1, x2, y2 (starts bottom left corner)
             border=[1, 1, 1]
         )
-    i = COVER_PAGE_START_Y+(COVER_PAGE_INCREMENT*.75)
+    i = (cover_page_size[1]-100)+(COVER_PAGE_INCREMENT*.75)
     pages_consumed=1
     # Add links for each song - skip page 1
     for song_pdf in song_pdfs[1:]:
