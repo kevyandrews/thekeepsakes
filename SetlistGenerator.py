@@ -240,11 +240,11 @@ def get_pdf_files(setlist, repertoire, instrument):
                 if file_to_add is None:
                     file_to_add = get_instrument_file(song_dir, instrument)
                 
-                if file_to_add is None and (instrument == "Bass" or instrument == "Keys"):
+                if file_to_add is None and (instrument == "Bass" or instrument == "CustomBass" or instrument == "Keys"):
                     file_to_add = get_instrument_file(song_dir, "chord")
                 if file_to_add is None and instrument == "Keys":
                     file_to_add = get_instrument_file(song_dir, "Piano")
-                if file_to_add is None and (instrument == "Bass" or instrument == "Keys"):
+                if file_to_add is None and (instrument == "Bass" or instrument == "CustomBass" or instrument == "Keys"):
                     file_to_add = get_instrument_file(song_dir, "rhythm")
                 if file_to_add is None and instrument == "Keys":
                     file_to_add = get_instrument_file(song_dir, "Bass")
