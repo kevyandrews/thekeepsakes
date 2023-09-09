@@ -1,0 +1,40 @@
+name: Run Setlist Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      spotifyURL:
+        default: "https://open.spotify.com/playlist/5uBncQl6gmVXVDS057nUHZ?si=5320e8a974d64426"
+        description: "Spotify playlist url"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - name: install requirments
+      run: pip install -r requirements.txt
+    - name: Setup gdrive
+      uses: AnimMouse/setup-gdrive@v3
+      with:
+        service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+    - name: Download from google drive
+      run: gdrive download 1xinJL5NwClwEFZvkMoC7LUqJSjf81pnu --recursive --service-account gdrive.json
+    - name: make output dir
+      run: mkdir Out
+    - name: Run python program
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        python SetlistGenerator.py -c ${{ secrets.SPOTIFYCLIENTID }} -s ${{ secrets.SPOTIFYSECRET }} -p ${{ github.event.inputs.spotifyURL }} -r Repertoire/ -o Out/
+    - name: ls
+      run: ls
+    - name: Archive pdfs
+      uses: actions/upload-artifact@v3
+      with:
+        name: setlist-pdfs
+        path: Out/*.pdf
